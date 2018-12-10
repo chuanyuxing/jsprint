@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Getting Started</title>
+    <script src="k2print.js"></script>
+    <script type="text/javascript">
+      function get_printers(){
+        k2print.reconfigure({          
+          port:'55555', //default=55555
+          useSsl:false, //default=false
+        });
+        k2print.get_printers(function(message){
+          alert(message);
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <input type="button" onclick="get_printers()" value="プリンタ一覧"" />
+  </body>
+</html>
