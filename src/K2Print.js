@@ -3,10 +3,10 @@
 import WsSessionContainer from './WsSessionContainer';
 
 /**
- * Class for access local printer.
+ * defining usable apis for jsprint.
  */
-class K2Print{
-    constructor(){  
+class K2Print {
+    constructor() {  
         this._settings = {
             autoCleanUp:true,
             autoReconnect:true,
@@ -19,23 +19,19 @@ class K2Print{
         this._ws_container = new WsSessionContainer(url);
     }
 
-    reconfigure(args){
-        if(this._ws_container){
-            this._ws_container.destory();
-        }       
-        if(args){
+    reconfigure(args) {
+        this._ws_container && this._ws_container.destory();              
+        if(args) {
             if( args.constructor !== {}.constructor){
                 throw new Error('k2print expects a json object at arguments[0],as follows:\r\n' + JSON.stringify(this._settings));
             }
-            Object.assign(this._settings,args);
+            Object.assign(this._settings, args);
         }  
-        if(this._settings.autoCleanUp && typeof window !== 'undefined'){
+        if(this._settings.autoCleanUp && typeof window !== 'undefined') {
             const k2p = this;
             const orginalHandler = window.onbeforeunload;
-            window.onbeforeunload=function(event){  
-                if(orginalHandler){
-                    orginalHandler(event);     
-                }    
+            window.onbeforeunload=function(event) {                  
+                orginalHandler && orginalHandler(event);                    
                 k2p.destory();               
             };           
         }
@@ -47,42 +43,53 @@ class K2Print{
     /**
      * get local printer list.
      */
-    get_printers(callback){    
-        if(!this._ws_container) return null; 
-        const session = this._ws_container.openSession('get_printers');
-        session.send('-');
-        session.onmessage = function(message){
-            if(callback) callback(message);
-        };
-        return session;
+    get_printers() {  
+        const wsContainer =  this._ws_container;
+        return new Promise(function(resolve,reject){
+            const session = wsContainer.openSession('get_printers');
+            session.send('-');
+            session.onmessage = function(message) {
+                resolve(message);
+            };
+            session.onerror = function(message) {
+                reject(message);
+            };
+        });
     }
 
     /**
-     * perform printing in local pc. 
+     * perform print in local pc. 
      */
-    print_execute(args, callback){
-        if(!this._ws_container) return null; 
-        const session = this._ws_container.openSession('print_execute');
-        session.send(args);
-        session.onmessage = function(message){
-            if(callback) callback(message);
-        };
-        return session;
+    print_execute(args) {
+        const wsContainer =  this._ws_container;
+        return new Promise(function(resolve,reject){
+            const session = wsContainer.openSession('print_execute');
+            session.send(args);
+            session.onmessage = function(message) {
+                resolve(message);
+            };
+            session.onerror = function(message) {
+                reject(message);
+            };
+        });
     }
 
-    download_file(args, callback){
-        if(!this._ws_container) return null; 
-        const session = this._ws_container.openSession('download_file');
-        session.send(args);
-        session.onmessage = function(message){
-            if(callback) callback(message);
-        };
-        return session;
+    download_file(args) {
+        const wsContainer =  this._ws_container;
+        return new Promise(function(resolve,reject){
+            const session = wsContainer.openSession('download_file');
+            session.send(args);
+            session.onmessage = function(message) {
+                resolve(message);
+            };
+            session.onerror = function(message) {
+                reject(message);
+            };
+        });
     }
 
-    destory(){
-        if(!this._ws_container) return; 
-        this._ws_container.destory();
+    destory() {
+        this._ws_container && this._ws_container.destory();
     }
 }
 export default K2Print;

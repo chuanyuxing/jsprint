@@ -9,7 +9,7 @@
           port:'55555', //default=55555
           useSsl:false, //default=false
         });
-        k2print.get_printers(function(message){
+        k2print.get_printers().then(function(message){
           alert(message);
         });
       }

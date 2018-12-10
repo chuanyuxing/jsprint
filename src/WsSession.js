@@ -2,61 +2,64 @@
 
 class WsSession{
 
-    constructor(ws, api){
-        this.api = api;
-        this.messageQueue = [];
-        this.ws = ws;                     
+    constructor(ws, api) {
+        this._api = api;
+        this._messageQueue = [];
+        this._ws = ws;                     
     }
 
-    send(message){        
-        if(!this.ws){
+    send(message) {    
+            
+        if (!this._ws) {
             throw new Error('WsSession is not a right state.');
         }
-        console.log('request[' + this.api + ']:' + message);
-        if (this.ws.readyState === 1) {
+
+        console.log('request[' + this._api + ']:' + message);
+
+        if (this._ws.readyState === 1) {
            
-            switch(message.constructor){
-            case 'test'.constructor:               
-                this.ws.send(message);
-                break;
-            case [].constructor:
-                this.ws.send(message.join('|'));
-                break;
-            case {}.constructor:
-                this.ws.send(JSON.stringify(message));
-                break;
-            default:               
-                this.ws.send(message);
+            switch (message.constructor) {
+                case 'test'.constructor:               
+                    this._ws.send(message);
+                    break;
+                case [].constructor:
+                    this._ws.send(message.join('|'));
+                    break;
+                case {}.constructor:
+                    this._ws.send(JSON.stringify(message));
+                    break;
+                default:               
+                    this._ws.send(message);
             }
-        }else{
-            this.messageQueue.push(message);
+        } else {
+            this._messageQueue.push(message);
         }
     }  
 
-    close(){
-        if(this.ws){
-            console.log('close connection[' + this.api + ']');
-            this.ws.close();
+    close() {
+        if (this._ws) {
+            console.log('close connection[' + this._api + ']');
+            this._ws.close();
         }
     }
 
-    onopen(){
-        console.log('open connection[' + this.api + ']');
-        while (this.messageQueue.length > 0) {
-            this.ws.send(this.messageQueue.pop());
+    onopen() {
+        console.log('open connection[' + this._api + ']');
+        while (this._messageQueue.length > 0) {
+            this._ws.send(this._messageQueue.pop());
         }
     }
 
-    onmessage(message){
-        console.log('response[' + this.api + ']:' + message);
+    onmessage(message) {
+        console.log('response[' + this._api + ']:' + message);
     }
 
-    onclose(){
-        console.log('close[' + this.api + ']');
+    onclose() {
+        console.log('close[' + this._api + ']');
     }
 
-    onerror(message){
-        console.log('error[' + this.api + ']:' + message);
+    onerror(message) {
+        console.log('error[' + this._api + ']:' + message);
     }       
 }
 export default WsSession;
