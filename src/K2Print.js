@@ -1,11 +1,13 @@
 'use strict';
 
+import Browser from './util/Browser';
 import WsSessionContainer from './WsSessionContainer';
 
 /**
  * defining usable apis for jsprint.
  */
 class K2Print {
+
     constructor() {  
         this._settings = {
             autoCleanUp:true,
@@ -27,7 +29,7 @@ class K2Print {
             }
             Object.assign(this._settings, args);
         }  
-        if(this._settings.autoCleanUp && typeof window !== 'undefined') {
+        if(this._settings.autoCleanUp && Browser.inBrowser()) {
             const k2p = this;
             const orginalHandler = window.onbeforeunload;
             window.onbeforeunload=function(event) {                  
@@ -49,10 +51,10 @@ class K2Print {
             const session = wsContainer.openSession('get_printers');
             session.send('-');
             session.onmessage = function(message) {
-                resolve(message);
+                resolve(JSON.parse( message || '{}'));
             };
             session.onerror = function(message) {
-                reject(message);
+                reject(JSON.parse( message || '{}'));
             };
         });
     }
@@ -66,10 +68,10 @@ class K2Print {
             const session = wsContainer.openSession('print_execute');
             session.send(args);
             session.onmessage = function(message) {
-                resolve(message);
+                resolve(JSON.parse( message || '{}'));
             };
             session.onerror = function(message) {
-                reject(message);
+                reject(JSON.parse( message || '{}'));
             };
         });
     }
@@ -80,10 +82,10 @@ class K2Print {
             const session = wsContainer.openSession('download_file');
             session.send(args);
             session.onmessage = function(message) {
-                resolve(message);
+                resolve(JSON.parse( message || '{}'));
             };
             session.onerror = function(message) {
-                reject(message);
+                reject(JSON.parse( message || '{}'));
             };
         });
     }
