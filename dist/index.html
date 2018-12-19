@@ -7,7 +7,7 @@
       function get_printers(){
         k2print.reconfigure({          
           port:'55555', //default=55555
-          useSsl:false, //default=false
+          secure:false, //default=false
         });
         k2print.get_printers().then(function(res){
           alert(res.List);

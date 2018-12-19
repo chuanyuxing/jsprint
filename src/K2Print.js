@@ -8,26 +8,25 @@ import WsSessionContainer from './WsSessionContainer';
  */
 class K2Print {
 
-    constructor() {  
-        this._settings = {
+    constructor(settings) {  
+        this._settings = settings || {
             autoCleanUp:true,
-            autoReconnect:true,
             host:'127.0.0.1',
             port:'55555',
-            useSsl:false
+            secure:false
         };   
-        const protocol = this._settings.useSsl ? 'wss' : 'ws';
+        const protocol = this._settings.secure ? 'wss' : 'ws';
         const url = `${protocol}://${this._settings.host}:${this._settings.port}/`;
         this._ws_container = new WsSessionContainer(url);
     }
 
-    reconfigure(args) {
+    reconfigure(settings) {
         this._ws_container && this._ws_container.destory();              
-        if(args) {
-            if( args.constructor !== {}.constructor){
+        if(settings) {
+            if( settings.constructor !== {}.constructor){
                 throw new Error('k2print expects a json object at arguments[0],as follows:\r\n' + JSON.stringify(this._settings));
             }
-            Object.assign(this._settings, args);
+            Object.assign(this._settings, settings);
         }  
         if(this._settings.autoCleanUp && Browser.inBrowser()) {
             const k2p = this;
@@ -37,7 +36,7 @@ class K2Print {
                 k2p.destory();               
             };           
         }
-        const protocol = this._settings.useSsl ? 'wss' : 'ws';
+        const protocol = this._settings.secure ? 'wss' : 'ws';
         const url = `${protocol}://${this._settings.host}:${this._settings.port}/`;
         this._ws_container = new WsSessionContainer(url);
     }
@@ -45,7 +44,7 @@ class K2Print {
     /**
      * get local printer list.
      */
-    get_printers() {  
+    get_printers() {
         const wsContainer =  this._ws_container;
         return new Promise(function(resolve,reject){
             const session = wsContainer.openSession('get_printers');
